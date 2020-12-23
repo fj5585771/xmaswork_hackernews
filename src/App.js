@@ -1,30 +1,60 @@
 
 import { useEffect, useState } from 'react';
 import './App.css';
+import StoryList from "./components/StoryList";
 
 function App() {
 
-  const [article, setArticle] = useState([]);
+  const [articleIds, setArticleIds] = useState([]);
+  const [stories, setStories] = useState([]);
 
-  const getArticles = () => {
-      console.log("getting the article information");
-    fetch("https://hacker-news.firebaseio.com/v0/topstories.json")
-    .then(res => res.json())
-    .then(data => setArticle(data));
+  const fetchStoryData = (storyIds) => {
+    // grab first 10 ids from json(state)
+    const stories = storyIds.slice(0, 10);
+
+    const clonedStories = stories.map((element) => {
+      return element
+    });
+
+    // with the first 10 ids, loop over them
+    stories.forEach((storyId) => {
+      const url = `https://hacker-news.firebaseio.com/v0/item/${storyId}.json`
+      //  fetch story for each id
+      fetch(url)
+      .then((res) => res.json())
+      .then((data) => {
+          // save that story to the state
+          // clone the state for the stories (in array)
+          //  add new story to cloned array
+          clonedStories.push(data)
+          // send the cloned array back into the state array with useState state change function 'setStories'
+          setStories(clonedStories);
+        })
+    });
+  
   }
+  
+  useEffect(() => { 
+      fetch("https://hacker-news.firebaseio.com/v0/topstories.json")
+      .then(res => res.json())
+      .then((data) => {
+         setArticleIds(data); 
+         fetchStoryData(data);
+    });
 
-  useEffect(() => {
-    getArticles();
+  }, []);
+
+  useEffect(() => {   // watches a part of your state (a single state variable)
+    fetchStoryData(articleIds);
   }, []);
 
   return (
-    <>
-      <div className="story-container">
-        <h1>Hacker News</h1>
-          {/* <StoryList /> */}
+      <div className="page-container">
+          <h1>Hacker News</h1>
+            <StoryList stories= {stories}/>
+            {/* <Story article={articleIds} /> */}
       </div>
-    </>
-  )
-}
+  );
+} 
 
 export default App;

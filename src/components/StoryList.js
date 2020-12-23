@@ -1,14 +1,16 @@
 import Story from "./Story";
 
-const StoryList = ({}) => {
+const StoryList = ({stories}) => {
+    const storyNodes = stories.map((story) => {
+        return (<Story story={story}/>);
+    });
+
     return (
-        <div className="story-list">
-            <>
-                <h2>This is a story list</h2>
-                <Story />
-            </>
-        </div>
-    )
+        <>
+            {storyNodes}       
+            {/* ^^referred to as a 'JSX' story  */}
+        </> 
+    );
 
 }
 
