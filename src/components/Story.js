@@ -1,5 +1,5 @@
 
-const Story = ({story}) => {
+const Story = ({story, index}) => {
 
     return (
 
