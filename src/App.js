@@ -25,7 +25,7 @@ function App() {
       .then((data) => {
           // save that story to the state
           // clone the state for the stories (in array)
-          //  add new story to cloned array
+          //  add new stories to cloned array
           clonedStories.push(data)
           // send the cloned array back into the state array with useState state change function 'setStories'
           setStories(clonedStories);
@@ -46,13 +46,13 @@ function App() {
 
   useEffect(() => {   // watches a part of your state (a single state variable)
     fetchStoryData(articleIds);
-  }, []);
+  }, [articleIds]);  // << dependency is specific piece of state that triggers changes
 
   return (
       <div className="page-container">
           <h1>Hacker News</h1>
             <StoryList stories= {stories}/>
-            {/* <Story article={articleIds} /> */}
+            {/* <Story article={articleIds} /> */}  
       </div>
   );
 } 
