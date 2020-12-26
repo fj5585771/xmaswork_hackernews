@@ -1,11 +1,14 @@
 
 const Story = ({story}) => {
+
     return (
-            <div style={{background: "grey"}}>
-                <p>Author: {story.by}</p>
-                <p>Title: {story.title}</p>
-                <p>Link: {story.url}</p>
-            </div>
+
+        <div style={{background: "grey"}}>
+
+            <h5>{index}.</h5>
+            <a href={story.url}>{story.title}</a>
+
+        </div>
     );
 }
 

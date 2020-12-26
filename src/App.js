@@ -8,29 +8,17 @@ function App() {
   const [articleIds, setArticleIds] = useState([]);
   const [stories, setStories] = useState([]);
 
-  const fetchStoryData = (storyIds) => {
+  const fetchStoryData = (storyIds, numStories) => {
     // grab first 10 ids from json(state)
-    const stories = storyIds.slice(0, 10);
+    const topStories = storyIds.slice(0, numStories);
 
-    const clonedStories = stories.map((element) => {
-      return element
-    });
-
-    // with the first 10 ids, loop over them
-    stories.forEach((storyId) => {
-      const url = `https://hacker-news.firebaseio.com/v0/item/${storyId}.json`
-      //  fetch story for each id
-      fetch(url)
-      .then((res) => res.json())
-      .then((data) => {
-          // save that story to the state
-          // clone the state for the stories (in array)
-          //  add new stories to cloned array
-          clonedStories.push(data)
-          // send the cloned array back into the state array with useState state change function 'setStories'
-          setStories(clonedStories);
-        })
-    });
+    // map every url to the promise of the fetch
+    let promises = topStories.map(storyId => fetch(`https://hacker-news.firebaseio.com/v0/item/${storyId}.json`));
+    console.log(promises);
+    // Promise.all to waits until all promises are resolved
+    Promise.all(promises) //accepts an array of promises
+      .then(responses => Promise.all(responses.map(r => r.json())))
+      .then(stories => setStories(stories));
   
   }
   
@@ -39,20 +27,19 @@ function App() {
       .then(res => res.json())
       .then((data) => {
          setArticleIds(data); 
-         fetchStoryData(data);
     });
 
   }, []);
 
   useEffect(() => {   // watches a part of your state (a single state variable)
-    fetchStoryData(articleIds);
-  }, [articleIds]);  // << dependency is specific piece of state that triggers changes
+    fetchStoryData(articleIds, 10);
+  }, [articleIds]);  // << dependency is specific piece of state that trigger changes
 
   return (
       <div className="page-container">
           <h1>Hacker News</h1>
             <StoryList stories= {stories}/>
-            {/* <Story article={articleIds} /> */}  
+            
       </div>
   );
 } 
