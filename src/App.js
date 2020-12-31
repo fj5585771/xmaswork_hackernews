@@ -9,17 +9,29 @@ function App() {
   const [stories, setStories] = useState([]);
 
   const fetchStoryData = (storyIds, numStories) => {
+
     // grab first 10 ids from json(state)
+
     const topStories = storyIds.slice(0, numStories);
 
-    // map every url to the promise of the fetch
-    let promises = topStories.map(storyId => fetch(`https://hacker-news.firebaseio.com/v0/item/${storyId}.json`));
-    console.log(promises);
-    // Promise.all to waits until all promises are resolved
+    // map every url to the promise of the fetch.  this returns a promise OBJECT, meaning we can do multiple things with it.  thats the use of '.then' (meaning fulfilled), '.catch' (if/ when it is rejected)
+
+    let promises = topStories.map((storyId) => {
+       fetch(`https://hacker-news.firebaseio.com/v0/item/${storyId}.json`)
+    });
+
+    // Promise.all to wait until all promises are resolved 
+
     Promise.all(promises) //accepts an array of promises
-      .then(responses => Promise.all(responses.map(r => r.json())))
-      .then(stories => setStories(stories));
-  
+      .then(response => {
+         return Promise.all(response.map((stories) => {
+            stories.json();
+          }));
+      })
+      .then(stories => {
+        return setStories(stories)
+      })
+      .catch(err => console.log(err));
   }
   
   useEffect(() => { 
@@ -31,7 +43,7 @@ function App() {
 
   }, []);
 
-  useEffect(() => {   // watches a part of your state (a single state variable)
+  useEffect(() => {   
     fetchStoryData(articleIds, 10);
   }, [articleIds]);  // << dependency is specific piece of state that trigger changes
 

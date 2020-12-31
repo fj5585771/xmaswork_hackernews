@@ -6,7 +6,7 @@ const StoryList = ({stories}) => {
     });
 
     return (
-        <div style={{background: "#fffdd0"}}>
+        <div style={{background: "#ffff00"}}>
         {storyNodes}
         </div>
     );
