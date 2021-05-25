@@ -2,13 +2,19 @@
 import { useEffect, useState } from 'react';
 import './App.css';
 import StoryList from "./components/StoryList";
+import axios from 'axios'
+import ReactPaginate from 'react-paginate';
 
 function App() {
 
   const [articleIds, setArticleIds] = useState([]);
   const [stories, setStories] = useState([]);
 
-  const fetchStoryData = (storyIds, numStories) => {  // DONE SECOND after initialising useEffect.  We want to initialise the top 10 stories on one page.
+  const [offset, setOffset] = useState(0);
+  const [perPage] = useState(10);
+  const [pageCount, setPageCount] = useState(0);
+
+  const fetchStoryData = async(storyIds, numStories) => {  // DONE SECOND after initialising useEffect.  We want to initialise the top 10 stories on one page.
 
     // set parameter names to be reused when invoking new state (JSON files) ^^ 
 
@@ -19,14 +25,23 @@ function App() {
     // pass in single storyId element as callback for map on sliced storyIds array, fetch each single story URL relevant with arrow function expression.  this returns a promise OBJECT (in variable 'let promises'), meaning we can do multiple things with it.  thats the use of '.then' (meaning fulfilled), '.catch' (if/ when it is rejected)
 
     let promises = topStories.map((storyId) => {
-       return fetch(`https://hacker-news.firebaseio.com/v0/item/${storyId}.json`)
+       return await axios.get(`https://hacker-news.firebaseio.com/v0/item/${storyId}.json`)
     });
 
     // Promise.all as we need to wait until all promises are resolved, otherwise it will not return asynchornous operation as its meant.
 
-    Promise.all(promises) //accepts an array of promises
-      .then(responses => Promise.all(responses.map(r => r.json())))
-      .then(stories => setStories(stories)); // render into use State AGAIN, because initial useState is the rendering of articles before it is fed to front end via props and JSX.
+  //   Promise.all(promises) //accepts an array of promises
+  //     .then(responses => Promise.all(responses.map(r => r)))
+  //     .then(stories => setStories(stories)); // render into use State AGAIN, because initial useState is the rendering of articles before it is fed to front end via props and JSX.
+  // }
+
+    axios.all(promises) //accepts an array of promises
+    .then(axios.spread((...responses) => {
+      const slice = responses.slice(offset, offset + perPage)
+      const postData = slice;                                         // axios has removed need to return objects in JSON format
+      setStories(postData)
+      setPageCount(Math.ceil(data.length / perPage))
+    }))
   }
   
   useEffect(() => { 
@@ -40,13 +55,30 @@ function App() {
 
   useEffect(() => {   
     fetchStoryData(articleIds, 10);
-  }, [articleIds]);  // << dependency is specific piece of state that trigger changes  DONE THIRD
+  }, [articleIds, offset]);  // << dependency is specific piece of state that trigger changes  DONE THIRD
+
+  const handlePageClick = (e) => {
+    const selectedPage = e.selected;
+    setOffset(selectedPage + 1)
+};
 
   return (
       <div className="page-container">
           <h1>Hacker News</h1>
             <StoryList stories= {stories}/>
-            {/* <Pages/> */}
+            <ReactPaginate
+                    previousLabel={"prev"}
+                    nextLabel={"next"}
+                    breakLabel={"..."}
+                    breakClassName={"break-me"}
+                    pageCount={pageCount}
+                    marginPagesDisplayed={2}
+                    pageRangeDisplayed={5}
+                    onPageChange={handlePageClick}
+                    containerClassName={"pagination"}
+                    subContainerClassName={"pages pagination"}
+                    activeClassName={"active"}/>
+            {/* <Pages /> */}
             
       </div>
   );
