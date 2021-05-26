@@ -10,7 +10,9 @@ const Story = ({story, index}) => {
         <div style={{background: "salmon"}}>
 
             <h5>{index}</h5>
-            <a href={story.url}>{story.title}</a>
+            <a href={story.data.url}>{story.data.title}</a>
+            {/* <a href={story.story.data.url}>{story.story.data.title}</a> */}
+            
 
         </div>
     );

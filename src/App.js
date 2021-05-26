@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import './App.css';
 import StoryList from "./components/StoryList";
 import axios from 'axios'
-import ReactPaginate from 'react-paginate';
+// import ReactPaginate from 'react-paginate';
 
 function App() {
 
@@ -24,8 +24,9 @@ function App() {
 
     // pass in single storyId element as callback for map on sliced storyIds array, fetch each single story URL relevant with arrow function expression.  this returns a promise OBJECT (in variable 'let promises'), meaning we can do multiple things with it.  thats the use of '.then' (meaning fulfilled), '.catch' (if/ when it is rejected)
 
-    let promises = topStories.map((storyId) => {
+    const promises = topStories.map(async (storyId) => {
        return await axios.get(`https://hacker-news.firebaseio.com/v0/item/${storyId}.json`)
+       
     });
 
     // Promise.all as we need to wait until all promises are resolved, otherwise it will not return asynchornous operation as its meant.
@@ -37,10 +38,11 @@ function App() {
 
     axios.all(promises) //accepts an array of promises
     .then(axios.spread((...responses) => {
+      
       const slice = responses.slice(offset, offset + perPage)
       const postData = slice;                                         // axios has removed need to return objects in JSON format
       setStories(postData)
-      setPageCount(Math.ceil(data.length / perPage))
+      setPageCount(Math.ceil(postData.length / perPage))
     }))
   }
   
@@ -59,25 +61,16 @@ function App() {
 
   const handlePageClick = (e) => {
     const selectedPage = e.selected;
-    setOffset(selectedPage + 1)
+    setOffset(selectedPage * perPage)
 };
 
   return (
       <div className="page-container">
           <h1>Hacker News</h1>
-            <StoryList stories= {stories}/>
-            <ReactPaginate
-                    previousLabel={"prev"}
-                    nextLabel={"next"}
-                    breakLabel={"..."}
-                    breakClassName={"break-me"}
-                    pageCount={pageCount}
-                    marginPagesDisplayed={2}
-                    pageRangeDisplayed={5}
-                    onPageChange={handlePageClick}
-                    containerClassName={"pagination"}
-                    subContainerClassName={"pages pagination"}
-                    activeClassName={"active"}/>
+            <StoryList stories= {stories}
+            pageCount={pageCount}
+            changePage={handlePageClick}/>
+
             {/* <Pages /> */}
             
       </div>
