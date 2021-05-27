@@ -2,7 +2,7 @@ import Story from "./Story";
 import ReactPaginate from 'react-paginate';
 
 const StoryList = ({stories, pageCount, changePage}) => {
-    
+
     const storyNodes = stories.map((story, index)=>{
         return (
         <Story story={story} index={index+1}/>
